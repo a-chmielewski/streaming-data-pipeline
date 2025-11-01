@@ -1,0 +1,101 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.python-version
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PySpark logs
+logs/
+.metastore_db/
+derby.log
+
+# Spark artifacts
+spark-warehouse/
+spark-events/
+*.crc
+*.snappy
+*.parquet
+
+# Local data files
+data/
+datasets/
+tmp/
+temp/
+*.csv
+*.tsv
+*.json
+*.parquet
+*.orc
+
+# Kafka logs and data
+kafka-logs/
+kafka-data/
+zk-logs/
+zookeeper-data/
+*.log
+
+# Docker
+*.pid
+*.pid.lock
+.docker/
+docker-compose.override.yml
+docker-compose.*.yml
+
+# Sensitive files
+.env
+.env.*
+.secrets
+*.key
+*.pem
+
+# System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE/editor folders
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Test and coverage outputs
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Miscellaneous
+*.bak
+*.swp
+*.swo
+
