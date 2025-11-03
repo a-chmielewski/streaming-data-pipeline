@@ -1,9 +1,0 @@
-# To completely disable Dependabot:
-# 1. Delete .github/dependabot.yml
-# 2. Go to: GitHub repo → Settings → Code security and analysis
-# 3. Disable "Dependabot version updates"
-
-# Or keep this minimal config (only security updates, no version bumps):
-version: 2
-updates: []
-
