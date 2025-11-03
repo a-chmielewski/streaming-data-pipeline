@@ -1,14 +1,15 @@
 import os
+
 from pyspark.sql import SparkSession
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    LongType,
-    DoubleType,
-    BooleanType,
-)
 from pyspark.sql.functions import col, from_json, timestamp_millis
+from pyspark.sql.types import (
+    BooleanType,
+    DoubleType,
+    LongType,
+    StringType,
+    StructField,
+    StructType,
+)
 
 # Define schema for Binance aggregate trade events
 trade_schema = StructType(

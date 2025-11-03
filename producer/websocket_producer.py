@@ -1,7 +1,10 @@
-import os, json, time
+import json
+import os
+import time
+
+from dotenv import load_dotenv
 from kafka import KafkaProducer
 from websocket import WebSocketApp
-from dotenv import load_dotenv
 
 load_dotenv()
 

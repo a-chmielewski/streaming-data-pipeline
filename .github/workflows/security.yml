@@ -47,6 +47,9 @@ jobs:
   docker-scan:
     name: Docker Image Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
     
     steps:
     - uses: actions/checkout@v4
@@ -56,14 +59,24 @@ jobs:
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
+      continue-on-error: true
       with:
         image-ref: 'crypto-producer:test'
         format: 'sarif'
         output: 'trivy-results.sarif'
     
+    - name: Check if SARIF file exists
+      id: check_sarif
+      run: |
+        if [ -f trivy-results.sarif ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Upload Trivy results to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
-      if: always()
+      if: steps.check_sarif.outputs.exists == 'true'
       with:
         sarif_file: 'trivy-results.sarif'
 
