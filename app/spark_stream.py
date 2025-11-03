@@ -2,8 +2,7 @@ import os
 
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, from_json, timestamp_millis
-from pyspark.sql.types import (BooleanType, DoubleType, LongType, StringType,
-                               StructField, StructType)
+from pyspark.sql.types import BooleanType, DoubleType, LongType, StringType, StructField, StructType
 
 # Define schema for Binance aggregate trade events
 trade_schema = StructType(
@@ -58,13 +57,9 @@ es_pass = os.getenv("ES_PASS", os.getenv("ELASTIC_PASSWORD"))
 
 
 def write_to_es(batch_df, batch_id):
-    batch_df.write.format("org.elasticsearch.spark.sql").option(
-        "es.nodes", es_host
-    ).option("es.port", es_port).option("es.nodes.wan.only", "true").option(
-        "es.resource", "crypto-trades-v2"
-    ).option(
-        "es.index.auto.create", "true"
-    ).option(
+    batch_df.write.format("org.elasticsearch.spark.sql").option("es.nodes", es_host).option("es.port", es_port).option(
+        "es.nodes.wan.only", "true"
+    ).option("es.resource", "crypto-trades-v2").option("es.index.auto.create", "true").option(
         "es.net.http.auth.user", es_user
     ).option(
         "es.net.http.auth.pass", es_pass

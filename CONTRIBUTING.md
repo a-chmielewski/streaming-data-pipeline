@@ -61,8 +61,8 @@ Before submitting a PR, ensure all checks pass:
 # Format code
 black producer/ app/
 
-# Sort imports
-isort producer/ app/
+# Sort imports (using black profile for compatibility)
+isort --profile black producer/ app/
 
 # Lint code
 flake8 producer/ app/ --max-line-length=120 --extend-ignore=E203,W503

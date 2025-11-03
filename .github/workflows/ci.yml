@@ -29,7 +29,7 @@ jobs:
       run: black --check --diff producer/ app/
     
     - name: Run isort (import sorting check)
-      run: isort --check-only --diff producer/ app/
+      run: isort --profile black --check-only --diff producer/ app/
     
     - name: Run Flake8 (linter)
       run: flake8 producer/ app/ --max-line-length=120 --extend-ignore=E203,W503
