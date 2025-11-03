@@ -66,6 +66,7 @@ zookeeper-data/
 .docker/
 docker-compose.override.yml
 docker-compose.*.yml
+producer/requirements.txt
 
 # Sensitive files
 .env
@@ -98,4 +99,4 @@ coverage.xml
 *.bak
 *.swp
 *.swo
-
+.cursorignore

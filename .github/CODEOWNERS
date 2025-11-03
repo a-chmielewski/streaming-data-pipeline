@@ -1,0 +1,24 @@
+# This file defines code ownership for the project
+# Each line is a file pattern followed by one or more owners
+# Owners will be automatically requested for review when someone opens a PR
+
+# Default owners for everything in the repo
+* @a-chmielewski
+
+# Producer code
+/producer/ @a-chmielewski
+
+# Spark streaming application
+/app/ @a-chmielewski
+
+# CI/CD workflows
+/.github/ @a-chmielewski
+
+# Docker configuration
+/Dockerfile @a-chmielewski
+/docker-compose.yml @a-chmielewski
+
+# Documentation
+*.md @a-chmielewski
+/docs/ @a-chmielewski
+

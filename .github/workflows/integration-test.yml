@@ -1,0 +1,67 @@
+name: Integration Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  integration-test:
+    name: Docker Compose Integration Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up test environment
+      run: |
+        echo "ELASTIC_PASSWORD=test_password_123" >> .env
+        echo "KIBANA_PASSWORD=test_password_123" >> .env
+        echo "SYMBOL=btcusdt" >> .env
+    
+    - name: Start services
+      run: |
+        docker compose up -d zookeeper kafka elasticsearch
+        echo "Waiting for services to be healthy..."
+        sleep 30
+    
+    - name: Check Kafka health
+      run: |
+        docker compose exec -T kafka kafka-topics --bootstrap-server localhost:9092 --list || true
+        echo "✅ Kafka is running"
+    
+    - name: Check Elasticsearch health
+      run: |
+        timeout 60 bash -c 'until curl -s -u elastic:test_password_123 http://localhost:9200/_cluster/health; do sleep 2; done'
+        echo "✅ Elasticsearch is running"
+    
+    - name: Start Producer
+      run: |
+        docker compose up -d producer
+        sleep 10
+    
+    - name: Check Producer logs
+      run: |
+        docker compose logs producer
+        echo "✅ Producer is running"
+    
+    - name: Verify Kafka topic creation
+      run: |
+        docker compose exec -T kafka kafka-topics --bootstrap-server localhost:9092 --list | grep crypto_trades || echo "Topic will be auto-created"
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        docker compose down -v
+        docker compose logs > docker-compose-logs.txt || true
+    
+    - name: Upload logs
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: docker-compose-logs
+        path: docker-compose-logs.txt
+

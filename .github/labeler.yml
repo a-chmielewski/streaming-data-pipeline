@@ -1,0 +1,30 @@
+producer:
+  - changed-files:
+    - any-glob-to-any-file: 'producer/**/*'
+
+spark:
+  - changed-files:
+    - any-glob-to-any-file: 'app/**/*'
+
+docker:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+
+ci/cd:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**/*'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '*.md'
+      - 'docs/**/*'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/requirements.txt'
+      - 'requirements.txt'
+

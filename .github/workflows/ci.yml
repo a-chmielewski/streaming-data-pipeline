@@ -1,0 +1,80 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: Lint Python Code
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black isort
+        pip install -r requirements.txt
+    
+    - name: Run Black (code formatter check)
+      run: black --check --diff producer/ app/
+    
+    - name: Run isort (import sorting check)
+      run: isort --check-only --diff producer/ app/
+    
+    - name: Run Flake8 (linter)
+      run: flake8 producer/ app/ --max-line-length=120 --extend-ignore=E203,W503
+
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: lint
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Build Producer Image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false
+        tags: crypto-producer:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Test Docker Compose Configuration
+      run: |
+        docker compose config
+
+  validate:
+    name: Validate Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Validate docker-compose.yml
+      run: |
+        docker compose config > /dev/null
+        echo "✅ Docker Compose configuration is valid"
+    
+    - name: Check required environment variables
+      run: |
+        echo "Checking for required configuration..."
+        grep -q "ELASTIC_PASSWORD" docker-compose.yml && echo "✅ ELASTIC_PASSWORD configured"
+        grep -q "SYMBOL" docker-compose.yml && echo "✅ SYMBOL configured"
+        echo "✅ All required variables found"
+

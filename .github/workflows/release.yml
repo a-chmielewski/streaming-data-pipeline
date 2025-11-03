@@ -1,0 +1,107 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+          echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+        else
+          echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # Get the previous tag
+        PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || git rev-list --max-parents=0 HEAD)
+        
+        # Generate changelog
+        echo "## What's Changed" > CHANGELOG.md
+        echo "" >> CHANGELOG.md
+        git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges >> CHANGELOG.md
+        
+        # Read changelog into output
+        echo "changelog<<EOF" >> $GITHUB_OUTPUT
+        cat CHANGELOG.md >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Build and push Docker image
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ghcr.io/${{ github.repository }}/producer:${{ steps.version.outputs.version }}
+          ghcr.io/${{ github.repository }}/producer:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        name: Release ${{ steps.version.outputs.version }}
+        body: |
+          # 🚀 Release ${{ steps.version.outputs.version }}
+          
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ## 📦 Docker Images
+          
+          ```bash
+          docker pull ghcr.io/${{ github.repository }}/producer:${{ steps.version.outputs.version }}
+          ```
+          
+          ## 📝 Installation
+          
+          ```bash
+          git clone https://github.com/${{ github.repository }}.git
+          cd streaming-data-pipeline
+          git checkout ${{ steps.version.outputs.version }}
+          docker compose up -d
+          ```
+          
+          ## 🔗 Links
+          
+          - [Documentation](https://github.com/${{ github.repository }}#readme)
+          - [Docker Image](https://ghcr.io/${{ github.repository }}/producer:${{ steps.version.outputs.version }})
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
